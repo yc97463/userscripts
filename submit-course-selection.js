@@ -1,11 +1,13 @@
 // ==UserScript==
-// @name         選課列表拖曳排序
+// @name         選課系統一鍵排入
 // @namespace    https://imych.one
 // @version      1.4
 // @description  讓選課系統中的課程列表可以拖曳重新排序，並一鍵依排序選入課程，支援 AJAX 載入
 // @author       yc97463
 // @match        https://sys.ndhu.edu.tw/AA/CLASS/subjselect/course_pre_sele.aspx
 // @match        https://sys.ndhu.edu.tw/aa/class/subjselect/course_pre_sele.aspx
+// @match        https://sys.ndhu.edu.tw/AA/CLASS/subjselect/course_sele.aspx
+// @match        https://sys.ndhu.edu.tw/aa/class/subjselect/course_sele.aspx
 // @grant        GM_addStyle
 // ==/UserScript==
 
@@ -132,14 +134,17 @@
     executeButton.addEventListener('click', () => {
         const courseTable = document.querySelector(courseTableSelector);
         const sortedRows = Array.from(courseTable.querySelectorAll('.sortable-item'));
+        // if the path is course_sele, then the function is ss, else is pss
+        const evalFunction = window.location.pathname.includes('course_sele') ? 'ss' : 'pss';
+
         sortedRows.forEach(row => {
             const onclickAttr = row.querySelector('input[type="button"]').getAttribute('onclick');
             if (onclickAttr) {
-                const match = onclickAttr.match(/pss\(this,(\d+),/);
+                const match = onclickAttr.match(/ss\(this,(\d+),/);
                 if (match) {
                     const courseId = match[1];
                     console.log(`選入課程 ID: ${courseId}`);
-                    eval(`pss(this, ${courseId}, '')`); // 執行選課動作
+                    eval(`${evalFunction}(this, ${courseId}, '')`); // 執行選課動作
                 }
             }
         });
